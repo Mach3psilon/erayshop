@@ -12,6 +12,7 @@ from rest_framework import status
 from datetime import datetime
 import iyzipay
 import json
+import secrets
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -108,9 +109,9 @@ def updateOrderToPaid(request, pk):
     cardHolderName = request.data['cardName']
 
     options = {
-    'api_key': '"FILL IN YOUR API KEY"',
-    'secret_key': '"FILL IN YOUR SECRET KEY"',
-    'base_url': 'sandbox-api.iyzipay.com'
+    'api_key': secrets.IYZICO_API_KEY,
+    'secret_key': secrets.IYZICO_SECRET_KEY,
+    'base_url': secrets.IYZICO_URL
     }
 
     payment_card = {
