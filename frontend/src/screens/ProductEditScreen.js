@@ -6,7 +6,8 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import FormContainer from '../components/FormContainer'
 
-import { listProductDetails } from '../actions/productActions'
+import { listProductDetails, updateProduct } from '../actions/productActions'
+import { PRODUCT_UPDATE_RESET } from '../constants/productConstants'
 
 function ProductEditScreen() {
         
@@ -26,18 +27,22 @@ function ProductEditScreen() {
         const productDetails = useSelector(state => state.productDetails)
         const { loading, error, product } = productDetails
     
+        const productUpdate = useSelector(state => state.productUpdate)
+        const { loading: loadingUpdate, error: errorUpdate, success: successUpdate } = productUpdate
         
     
         const history = useNavigate()
 
         useEffect(() => {
-            
-           
-                if(!product.name || product._id !== Number(productId)) {
+            if (successUpdate) {
+                dispatch({ type: PRODUCT_UPDATE_RESET })
+                history('/admin/productlist')
+            } else {
+                console.log('product1', Number(productId))
+                console.log('product2', Number(product._id))
+                if (!product.name || ((Number(product._id) !== Number(productId)))) {
                     dispatch(listProductDetails(productId))
-                    
                 } else {
-
                     setName(product.name)
                     setPrice(product.price)
                     setImage(product.image)
@@ -45,16 +50,26 @@ function ProductEditScreen() {
                     setCategory(product.category)
                     setCountInStock(product.countInStock)
                     setDescription(product.description)
-
                 }
-           
+            }
+        }, [history, product, successUpdate])
 
-            
            
-        }, [history])
 
         const submitHandler = (e) => {
             e.preventDefault()
+
+            dispatch(updateProduct({
+                _id: productId,
+                name,
+                price,
+                image,
+                brand,
+                category,
+                countInStock,
+                description
+            }))
+
            
 
            
@@ -69,6 +84,8 @@ function ProductEditScreen() {
         <FormContainer>
         
             <h1>Edit Product</h1>
+            {loadingUpdate && <Loader />}
+            {errorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
             
 
             {loading ? <Loader /> : error ? <Message variant='danger'>{error}</Message> : (
