@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom'
 import { Form, Button } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,7 +21,8 @@ function ProductEditScreen() {
         const [category, setCategory] = useState('')
         const [countInStock, setCountInStock] = useState(0)
         const [description, setDescription] = useState('')
-    
+        const [uploading, setUploading] = useState(0)
+
 
         const dispatch = useDispatch()
     
@@ -30,6 +32,7 @@ function ProductEditScreen() {
         const productUpdate = useSelector(state => state.productUpdate)
         const { loading: loadingUpdate, error: errorUpdate, success: successUpdate } = productUpdate
         
+        
     
         const history = useNavigate()
 
@@ -38,9 +41,8 @@ function ProductEditScreen() {
                 dispatch({ type: PRODUCT_UPDATE_RESET })
                 history('/admin/productlist')
             } else {
-                console.log('product1', Number(productId))
-                console.log('product2', Number(product._id))
-                if (!product.name || ((Number(product._id) !== Number(productId)))) {
+                
+                if (!product || !product.name || ((Number(product._id) !== Number(productId)))) {
                     dispatch(listProductDetails(productId))
                 } else {
                     setName(product.name)
@@ -52,7 +54,7 @@ function ProductEditScreen() {
                     setDescription(product.description)
                 }
             }
-        }, [history, product, successUpdate])
+        }, [dispatch, history])
 
            
 
@@ -74,6 +76,31 @@ function ProductEditScreen() {
 
            
         }
+
+        const uploadFileHandler = async (e) => {
+            const file = e.target.files[0]
+            const formData = new FormData()
+            formData.append('image', file)
+            formData.append('product_id', productId)
+            setUploading(1)
+
+            try {
+                const config = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+
+                const { data } = await axios.post('/api/products/upload/', formData, config)
+
+                setImage(data)
+                setUploading(0)
+            } catch (error) {
+                console.error(error)
+                setUploading(0)
+            }
+        }
+
 
   return (
     <div>
@@ -104,6 +131,9 @@ function ProductEditScreen() {
                 <Form.Group controlId='image'>
                     <Form.Label>Image</Form.Label>
                     <Form.Control  type='text' placeholder='Enter image' value={image} onChange={(e) => setImage(e.target.value)}></Form.Control>
+                    <Form.Control  type="file" label='Choose File' custom onChange={uploadFileHandler}></Form.Control>
+                    
+
                 </Form.Group>
                 <br/>
                 <Form.Group controlId='brand'>
