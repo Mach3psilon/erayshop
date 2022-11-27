@@ -5,13 +5,13 @@ import {LinkContainer} from 'react-router-bootstrap'
 
 function Paginate({pages, page, isAdmin = false, keyword = ''}) {
    
-    console.log('keyword1:', keyword)
+    
     if(keyword) {
         keyword = keyword.split('?keyword=')[1].split('&')[0]
     }
 
     
-    console.log('keyword2',keyword)
+    
 
 
   return (
