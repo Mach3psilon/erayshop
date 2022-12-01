@@ -22,6 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = secrets2.DJANGO_SECRET_KEY
+POSTGRES_NAME = secrets2.POSTGRES_NAME
+POSTGRES_ENDPOINT = secrets2.POSTGRES_ENDPOINT
+POSTGRES_USER = secrets2.POSTGRES_USER
+POSTGRES_PASSWORD = secrets2.POSTGRES_PASSWORD
+AWS_ACCESS_KEY = secrets2.AWS_ACCESS_KEY
+AWS_SECRET_ACCESS = secrets2.AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET = secrets2.AWS_STORAGE_BUCKET_NAME
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +50,7 @@ INSTALLED_APPS = [
 
     'base.apps.BaseConfig',
     'corsheaders',
+    'storages',
 ]
 
 
@@ -126,13 +134,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+"""
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': POSTGRES_NAME,
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PASSWORD,
+        "HOST": POSTGRES_ENDPOINT,
+        "PORT": "5432",
+
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -185,3 +206,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS
+AWS_STORAGE_BUCKET_NAME = AWS_STORAGE_BUCKET
+AWS_QUERYSTRING_AUTH = False

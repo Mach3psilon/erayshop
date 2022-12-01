@@ -14,6 +14,7 @@ import iyzipay
 import json
 import secrets
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def addOrderItems(request):
@@ -36,7 +37,7 @@ def addOrderItems(request):
                 cannot_bought.append(product.name)
         if flag == 1:
             return Response({'detail': 'Out of Stock', 'product': cannot_bought}, status=status.HTTP_400_BAD_REQUEST)
-                
+
         # 1) Create order
         order = Order.objects.create(
             user=user,
@@ -71,7 +72,8 @@ def addOrderItems(request):
 
         serializer = OrderSerializer(order, many=False)
         return Response(serializer.data)
-    
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getOrderByID(request, pk):
@@ -82,10 +84,12 @@ def getOrderByID(request, pk):
             serializer = OrderSerializer(order, many=False)
             return Response(serializer.data)
         else:
-            Response({'detail': 'Not authorized to view this order'}, status=status.HTTP_400_BAD_REQUEST)
+            Response({'detail': 'Not authorized to view this order'},
+                     status=status.HTTP_400_BAD_REQUEST)
     except:
         str_to_send = 'Order does not exist for ' + str(pk)
         return Response({'detail': str_to_send}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -95,12 +99,14 @@ def getMyOrders(request):
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def getOrders(request):
     orders = Order.objects.all()
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
+
 
 @api_view(['PUT'])
 @permission_classes([IsAdminUser])
@@ -110,13 +116,15 @@ def updateOrderToDelivered(request, pk):
     order.deliveredAt = datetime.now()
     order.save()
     return Response('Order was delivered')
-    
 
-@api_view(['POST'])  
-@permission_classes([IsAuthenticated])
+
+# change from admin to user to open payment page
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 def updateOrderToPaid(request, pk):
     order = Order.objects.get(_id=pk)
-    
+
     price = request.data['itemsPrice']
     cardNumber = request.data['cardNumber']
     expiry = request.data['expiry']
@@ -126,9 +134,9 @@ def updateOrderToPaid(request, pk):
     cardHolderName = request.data['cardName']
 
     options = {
-    'api_key': secrets.IYZICO_API_KEY,
-    'secret_key': secrets.IYZICO_SECRET_KEY,
-    'base_url': secrets.IYZICO_URL
+        'api_key': secrets.IYZICO_API_KEY,
+        'secret_key': secrets.IYZICO_SECRET_KEY,
+        'base_url': secrets.IYZICO_URL
     }
 
     payment_card = {
@@ -200,7 +208,3 @@ def updateOrderToPaid(request, pk):
         return Response('Payment is successful')
     else:
         return Response('Payment is not successful', status=status.HTTP_400_BAD_REQUEST)
-    
-    
-
-

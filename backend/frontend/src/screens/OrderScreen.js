@@ -216,9 +216,11 @@ function OrderScreen() {
                 <br></br>
             </Form.Group>
             <Form.Group>
-                <Button type='submit' variant='primary'>
+            
+                <Button disabled type='submit' variant='primary'>
                     Pay
                 </Button>
+                <h3>Payment is disabled for production use</h3>
 
                 
             </Form.Group>
